@@ -1,0 +1,67 @@
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Space Invaders - STAR WARS</title>
+    <link rel="icon" type="image/x-icon" href="image/starwars.png">
+</head>
+<body>
+    <div class="logoContainer">
+        <img src="image/starwars.png" alt="logo do filme star wars" class="logo">
+    </div>
+    <canvas id="tela" width="400" height="600"></canvas>
+    <script type="text/javascript" src="index.js"></script>
+    <div>
+        <div class="banner">
+        <video autoplay muted loop>
+            <source src="video/galaxia.mp4" type="video/mp4">
+        </video>
+    </div>
+    
+    
+    <style>
+        .logoContainer {
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo {
+            width: 5vw;
+            height: auto;
+        }
+        #tela {
+            position: absolute;
+            transform: translateX(38vw);
+        } 
+        body{
+            background-color: black;
+            overflow: hidden
+        }
+        h1{
+            text-align: center;
+            font-family: 'Kanit', sans-serif;
+            color: #fff;
+            background-color: black;
+        }
+        .banner{
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+
+        }
+        
+
+       
+    </style>
+            <footer>
+                <p>Autores: O amor da minha vida e sua mulher linda e maravilhosa</p> <!--<3-->
+            </footer>
+    </body>
+</html>
