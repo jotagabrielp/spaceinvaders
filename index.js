@@ -1,26 +1,35 @@
 var tela
 var c;
 
+var nome = prompt("Digite seu nome");
 var canhao;
 var laser;
 var alien;
 var explosao;
-
 var canhaoX = 180;
 var canhaoY = 529;
 var laserX = 193;
 var laserY = 520;
+var laserYAlien = 180;
 var alienX = 0;
 var alienY = 0;
 var inicioLaser = false;
+var inicioLaserAlien = false;
 var impactoLaserX;
+var impactoLaserXAlien;
 var laserMovendo;
+var laserAlienMovendo;
+var AlienTiro;
 var intervalo = 10;
 var posicao = 0;
-
+var vidas = 3;
+var atirou = false;
+var placar = [];
+var pontos = 0;
 var alienLinhas = [10, 38, 66, 94, 122, 150, 178, 206, 234, 262, 290];
 var alienColunas = [55, 85, 115, 145, 175];
 var aliensRestantes = [];
+var terminou = false;
 
 const C_ALTURA = 600; 
 const C_LARGURA = 400;
@@ -32,15 +41,10 @@ const TECLA_ESPACO = 32; // keycode números de referencias  ex: 32 - botão esp
 
 onkeydown = moverCanhao; // Define função chamada ao se pressionar uma tecla
 
-const placar = 0;
-
 iniciar(); // Chama função inicial do jogo
 
 
 // Sub-rotinas (funções)
-function sleep (time) {
-    return new Promise((resolve) => setTimeout(resolve, time));
-}
 
 function iniciar() {
     window.audioTiro = new Audio('sound/tiro.mp3');
@@ -54,9 +58,13 @@ function iniciar() {
 	c.fillStyle = "black";
 	c.fillRect(0, 0, C_LARGURA, C_ALTURA);
 
+    c.fillStyle = "white";
+    c.textAlign = "left";
+    c.font = "16px Arial";
+    c.fillText("Vidas: " + vidas, 10, 30);
+
     posicionarAlien();
     carregarImagens();
-
 	setInterval("moverAliens()", intervalo);
     setInterval("alienAtingido()", 6);
 }    
@@ -94,13 +102,22 @@ function posicionarAlien() {
         145: tie,
         175: tie
     }
+    var pontos = {
+        55: 40,
+        85: 20,
+        115: 20,
+        145: 10,
+        175: 10
+    }
     for (var i = 0; i < alienLinhas.length; i++){
         for (var j = 0; j < alienColunas.length; j++){
+            var coluna = alienColunas[j];
             var novoAlien = {
                 posX : alienLinhas[i],
-                posY : alienColunas[j],
+                posY : coluna,
                 foiAtingido : false,
-                icone: icones[alienColunas[j]]
+                valor: pontos[coluna],
+                icone: icones[coluna]
 			};
 			
             aliensRestantes[aliensRestantes.length] = novoAlien;
@@ -129,7 +146,8 @@ function moverAliens(){
         
         for (var i = 0; i < aliensRestantes.length; i++){
             if (!aliensRestantes[i].foiAtingido){
-                c.fillRect((alienX + aliensRestantes[i].posX - 1), (alienY + aliensRestantes[i].posY - 1), 35, 35);
+                c.fillStyle = "black";
+                c.fillRect((alienX + aliensRestantes[i].posX - 1), (alienY + aliensRestantes[i].posY - 1), 24, 22);
                 c.drawImage(aliensRestantes[i].icone, (alienX + aliensRestantes[i].posX), (alienY + aliensRestantes[i].posY));
 				
                 if ((aliensRestantes[i].posY + alienY + 23) >= 530){
@@ -145,17 +163,22 @@ function alienAtingido(){
             (impactoLaserX >= (alienX + aliensRestantes[i].posX - 5)) && (impactoLaserX <= (alienX + aliensRestantes[i].posX + 18))){
             if (!aliensRestantes[i].foiAtingido){
                     c.drawImage(explosao, (alienX + aliensRestantes[i].posX - 1), (alienY + aliensRestantes[i].posY - 1), 30, 35);
+                    pontos += aliensRestantes[i].valor;
+                    console.log(pontos);
                     c.fillStyle = "black";
-                    c.fillRect((alienX + aliensRestantes[i].posX - 1), (alienY + aliensRestantes[i].posY - 1), 20, 25);
                     aliensRestantes[i].foiAtingido = true;
                     c.fillRect(impactoLaserX, laserY, 6, 19);
                     laserY = 0;
             }
         }
-    }    
+    }
+    if(aliensRestantes.every(alien => alien.foiAtingido === true)) {
+        fimDeJogo();
+    }
 }
 
 function fimDeJogo(){
+    terminou = true;
     canhaoX = 180;
     laserX = 193;
     laserY = 520;
@@ -172,6 +195,9 @@ function fimDeJogo(){
     c.font = "16px Arial";
     c.fillStyle = "white";
     c.fillText("“Não. Não tente. Faça ou não faça, mas não tente.”", C_LARGURA/2, C_ALTURA/2);
+    
+    c.font = "12px Arial";
+    c.fillText(nome + ": " + pontos, (C_LARGURA/2), (C_ALTURA/2) + 100);
 
     onkeydown = null;
 }
@@ -204,25 +230,39 @@ function moverCanhao(tecla){
 }
 
 function dispararLaser(){
-    window.audioTiro.play();
-    if (inicioLaser && (laserY >= 60)){
-        laserY -= 10;
-        c.fillStyle = "black";
-        c.fillRect(impactoLaserX, (laserY + 10), 6, 19);
-		
-        if (laserY >= 70){
-            c.drawImage(laser, impactoLaserX, laserY);
+    if(!terminou) {
+        // atirarAliens();
+        atirou = true;
+        window.audioTiro.play();
+        if (inicioLaser && (laserY >= 60)){
+            laserY -= 10;
+            c.fillStyle = "black";
+            c.fillRect(impactoLaserX, (laserY + 10), 6, 19);
+            
+            if (laserY >= 70){
+                c.drawImage(laser, impactoLaserX, laserY);
+            }
         }
-    }
-	
-    if (laserY < 60){
-        clearInterval(laserMovendo);
-        inicioLaser = false;
-        laserY = 520;
+        
+        if (laserY < 60){
+            clearInterval(laserMovendo);
+            inicioLaser = false;
+            laserY = 520;
+        }
     }
 }
-    function criarplacar(){
-        const placar = {
-            pontuacao: 0,
-        }
-    }
+// function atirarAliens() {
+//         // window.audioTiro.play();
+//         impactoLaserXAlien = alienLinhas[Math.floor(Math.random() * 11)];
+//         laserYAlien = 90;
+//         setTimeout(() => {
+//             while(laserYAlien <= 580) {
+//                 console.log(laserYAlien)
+//                 c.fillStyle = "black";
+//                 c.fillRect(impactoLaserXAlien, laserYAlien, 6, 19);
+//                 c.drawImage(laser, impactoLaserXAlien, laserYAlien);
+//                 laserYAlien += 1;
+//             }
+//             atirarAliens();
+//         }, Math.floor((Math.random() * 3000) + 1000))
+// }
