@@ -1,7 +1,7 @@
 var tela
 var c;
 
-var nome = prompt("Digite seu nome");
+var nome = prompt("Digite seu apelido");
 var canhao;
 var laser;
 var alien;
@@ -10,19 +10,21 @@ var canhaoX = 180;
 var canhaoY = 529;
 var laserX = 193;
 var laserY = 520;
-var laserYAlien = 180;
+var laserYAlien = 210;
+var laserMovendoAlien;
 var alienX = 0;
 var alienY = 0;
 var inicioLaser = false;
 var inicioLaserAlien = false;
 var impactoLaserX;
-var impactoLaserXAlien;
+var impactoLaserXAlien = 180;
 var laserMovendo;
 var laserAlienMovendo;
 var AlienTiro;
 var intervalo = 10;
 var posicao = 0;
 var vidas = 3;
+var invencivel = false;
 var atirou = false;
 var placar = [];
 var pontos = 0;
@@ -65,8 +67,13 @@ function iniciar() {
 
     posicionarAlien();
     carregarImagens();
+    var alienAtirando = setInterval(() => {
+        inicioLaserAlien = true;
+        laserMovendoAlien = setInterval("dispararLaserAlien()", 5);
+    }, 2000)
 	setInterval("moverAliens()", intervalo);
     setInterval("alienAtingido()", 6);
+    setInterval("canhaoAtingido()", 6);
 }    
 
 function carregarImagens() {
@@ -164,7 +171,6 @@ function alienAtingido(){
             if (!aliensRestantes[i].foiAtingido){
                     c.drawImage(explosao, (alienX + aliensRestantes[i].posX - 1), (alienY + aliensRestantes[i].posY - 1), 30, 35);
                     pontos += aliensRestantes[i].valor;
-                    console.log(pontos);
                     c.fillStyle = "black";
                     aliensRestantes[i].foiAtingido = true;
                     c.fillRect(impactoLaserX, laserY, 6, 19);
@@ -173,6 +179,24 @@ function alienAtingido(){
         }
     }
     if(aliensRestantes.every(alien => alien.foiAtingido === true)) {
+        fimDeJogo();
+    }
+}
+
+function canhaoAtingido() {
+    if((laserYAlien > canhaoY - 5 && laserYAlien < canhaoY + 5) && (impactoLaserXAlien >= canhaoX - 30 && impactoLaserXAlien <= canhaoX + 30) && invencivel == false) {
+        invencivel = true;
+        c.fillStyle = "black";
+        c.fillRect(0, 0, 80, 30);
+        c.fillStyle = "white";
+        c.textAlign = "left";
+        c.font = "16px Arial";
+        vidas = vidas -1;
+        c.fillText("Vidas: " + vidas, 10, 30);
+        setTimeout(() => invencivel = false, 500);
+    }
+
+    if( vidas <= 0) {
         fimDeJogo();
     }
 }
@@ -231,8 +255,6 @@ function moverCanhao(tecla){
 
 function dispararLaser(){
     if(!terminou) {
-        // atirarAliens();
-        atirou = true;
         window.audioTiro.play();
         if (inicioLaser && (laserY >= 60)){
             laserY -= 10;
@@ -251,18 +273,26 @@ function dispararLaser(){
         }
     }
 }
+function dispararLaserAlien(){
+    if(!terminou) {
+        window.audioTiro.play();
+        if (inicioLaserAlien){
+            laserYAlien += 3;
+            c.fillStyle = "black";
+            c.drawImage(laser, impactoLaserXAlien, laserYAlien);
+            c.fillRect(impactoLaserXAlien - 2, (laserYAlien - 10), 10, 10);
+        }
+        if (laserYAlien > 600){
+            clearInterval(laserMovendoAlien);
+            inicioLaserAlien = false;
+            //Essa linha escolhe uma coluna aleatoria dos aliens para atirar
+            impactoLaserXAlien = Math.floor(alienLinhas[Math.floor(Math.random()* alienLinhas.length - 1)]);
+            //Essa linha pega o array de aliens, inverte ela (ex: [1,2,3,4] vira [4,3,2,1]), e procura o primeiro alien que ainda está vivo, e atribui a posição Y dele à posição Y do laser
+            laserYAlien = alienY + 185;
+        }
+    }
+}
 // function atirarAliens() {
 //         // window.audioTiro.play();
-//         impactoLaserXAlien = alienLinhas[Math.floor(Math.random() * 11)];
-//         laserYAlien = 90;
-//         setTimeout(() => {
-//             while(laserYAlien <= 580) {
-//                 console.log(laserYAlien)
-//                 c.fillStyle = "black";
-//                 c.fillRect(impactoLaserXAlien, laserYAlien, 6, 19);
-//                 c.drawImage(laser, impactoLaserXAlien, laserYAlien);
-//                 laserYAlien += 1;
-//             }
-//             atirarAliens();
-//         }, Math.floor((Math.random() * 3000) + 1000))
+
 // }
