@@ -188,6 +188,8 @@ function canhaoAtingido() {
         invencivel = true;
         c.fillStyle = "black";
         c.fillRect(0, 0, 80, 30);
+        c.fillRect(canhaoX, canhaoY, 80, 80);
+        c.drawImage( explosao ,canhaoX, canhaoY)
         c.fillStyle = "white";
         c.textAlign = "left";
         c.font = "16px Arial";
@@ -292,7 +294,3 @@ function dispararLaserAlien(){
         }
     }
 }
-// function atirarAliens() {
-//         // window.audioTiro.play();
-
-// }
